@@ -1,0 +1,4 @@
+SELECT DISTINCT email 
+FROM customer 
+ORDER BY email ASC
+LIMIT 20;

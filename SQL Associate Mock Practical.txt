@@ -1,0 +1,150 @@
+# SQL Associate — Mock Practical Exam
+
+## Practical Exam Instructions
+
+You are working as a data analyst for a company that operates a movie rental business.
+
+The company stores information about customers, films, rentals, payments, inventory, stores, and staff in a PostgreSQL database.
+
+You have been asked to prepare several datasets that will be used by different teams across the business.
+
+Complete all four tasks using PostgreSQL.
+
+Each task is independent. You do not need to use the result of one task to complete another task.
+
+Your query output must match all column names and criteria described in each task.
+
+---
+
+# Task 1 — Data Validation and Cleaning
+
+The company is preparing information about a new set of rental branches.
+
+The data was collected from several systems and stored in the `mock_branch_raw` table.
+
+Before the data can be used for analysis, it must be cleaned.
+
+The table contains the following columns:
+
+| Column          | Description                                                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`            | Unique identifier for the branch. Missing values are not possible.                                                                                                       |
+| `location`      | Geographic location of the branch. Valid values are `Europe`, `North America`, `Asia`, and `South America`. Missing or invalid values should be replaced with `Unknown`. |
+| `total_rooms`   | Number of rooms available at the branch. Valid values are between **40 and 350 inclusive**. Missing or invalid values should be replaced with `100`.                     |
+| `staff_count`   | Number of employees working at the branch. Valid values are between **25 and 500 inclusive**. Missing or invalid values should be replaced with `100`.                   |
+| `opening_year`  | Year the branch opened. Valid values are between **1995 and 2024 inclusive**. Missing or invalid values should be replaced with `2000`.                                  |
+| `target_guests` | Main customer segment targeted by the branch. Valid values are `Leisure` and `Business`. Missing or invalid values should be replaced with `Leisure`.                    |
+
+Write a query that returns the cleaned branch data.
+
+Your output should include exactly the following columns:
+
+```text
+id
+location
+total_rooms
+staff_count
+opening_year
+target_guests
+```
+
+Do not modify the original `mock_branch_raw` table.
+
+---
+
+# Task 2 — Customer Payment Analysis
+
+The finance team wants to understand the size of payments processed for each customer by each staff member.
+
+Using the `payment` table, calculate the **average payment amount** and the **maximum payment amount** for each combination of customer and staff member.
+
+Your output should include the following columns:
+
+```text
+customer_id
+staff_id
+avg_payment
+max_payment
+```
+
+Round `avg_payment` to **two decimal places**.
+
+Each customer/staff combination should appear only once.
+
+---
+
+# Task 3 — Film Rental Report
+
+The commercial team wants to investigate rentals of films from two specific categories.
+
+Return all rentals of films belonging to either the **`Comedy`** or **`Drama`** category.
+
+For each matching rental, return:
+
+* the rental ID;
+* the film ID;
+* the film title;
+* the category name;
+* the rental date;
+* the customer ID.
+
+Use the appropriate tables from the DVD Rental database to connect rentals to films and film categories.
+
+Your output should include exactly the following columns:
+
+```text
+rental_id
+film_id
+title
+category
+rental_date
+customer_id
+```
+
+Only films belonging to `Comedy` or `Drama` should be included.
+
+---
+
+# Task 4 — Store Performance
+
+The finance team wants to identify customer and staff combinations associated with relatively low average payment amounts.
+
+Using the `payment` table, calculate the **average payment amount** for every combination of customer and staff member.
+
+Return only combinations where the average payment amount is **less than 4.00**.
+
+Your output should include the following columns:
+
+```text
+customer_id
+staff_id
+avg_payment
+```
+
+Round `avg_payment` to **two decimal places**.
+
+Each customer/staff combination should appear only once.
+
+---
+
+# Submission
+
+Submit one SQL query for each task.
+
+```text
+TASK 1:
+
+
+TASK 2:
+
+
+TASK 3:
+
+
+TASK 4:
+```
+
+**Maximum time: 4 hours.**
+
+Do not use external assistance while completing the exam.
+

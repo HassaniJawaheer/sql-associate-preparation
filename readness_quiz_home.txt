@@ -1,0 +1,1043 @@
+# Feuille d’examen — Mock SQL Associate
+
+Ceci est ma feuille d’examen pour notre test maison.
+
+J’ai choisi le format `.txt` afin de pouvoir copier les 45 questions, compléter directement mes réponses, puis transmettre le fichier une fois l’examen terminé.
+
+**Temps de référence : 60 minutes**
+**Durée réellement utilisée : 44 minutes**
+
+## Instructions
+
+* Répondre aux 45 questions.
+* Pour chaque question, indiquer uniquement la lettre correspondant à la réponse choisie.
+* Répondre sans utiliser de cours, de moteur de recherche, d’intelligence artificielle ni d’aide extérieure.
+* En cas d’hésitation, choisir tout de même une réponse.
+* Ne pas modifier les questions ni les choix proposés.
+* Indiquer honnêtement la durée totale réellement utilisée.
+* Il est permis de dépasser les 60 minutes afin de terminer l’examen.
+* Tout dépassement du temps de référence sera toutefois pris en compte lors de la correction et entraînera une pénalisation du score, comme dans les conditions d’un examen chronométré.
+* Une fois l’examen terminé, enregistrer le fichier et le transmettre avec toutes les réponses.
+
+### Question 1
+
+The `orders` table contains the following columns:
+
+- `order_id`
+- `customer_id`
+- `status`
+- `total_amount`
+
+Consider the query:
+
+```sql
+SELECT order_id, total_amount
+FROM orders
+WHERE status = 'completed'
+  AND total_amount >= 100
+   OR status = 'shipped'
+ORDER BY total_amount DESC;
+```
+
+Which orders will be returned?
+
+A. Only completed orders with a total amount of at least 
+B. Completed and shipped orders with a total amount of at least 100  
+C. Completed orders with a total amount of at least 100, plus all shipped orders (X)
+D. All completed orders, plus shipped orders with a total amount of at least 100  
+
+---
+
+### Question 2
+
+Complete the query to return customers who have placed at least five orders.
+
+```sql
+SELECT customer_id,
+       COUNT(*) AS order_count
+FROM orders
+GROUP BY customer_id
+HAVING COUNT(*) >= 5;
+```
+
+A. `WHERE`  
+B. `HAVING`(X) 
+C. `FILTER`  
+D. `ORDER BY`  
+
+---
+
+### Question 3
+
+A database stores the following table:
+
+```text
+sales
+-----
+order_id
+order_date
+customer_id
+customer_name
+customer_email
+product_id
+quantity
+```
+
+The same customer name and email are repeated for every order placed by that customer.
+
+Which change would best reduce this redundancy?
+
+A. Store all customer details in a single text column  
+B. Create a separate `customers` table and reference it using `customer_id` (X) 
+C. Remove `customer_id` and identify customers using their names  
+D. Create a separate table for every customer  
+
+---
+
+### Question 4
+
+The `customers` table contains:
+
+| customer_id |
+|---:|
+| 1 |
+| 2 |
+| 3 |
+
+The `orders` table contains:
+
+| order_id | customer_id |
+|---:|---:|
+| 101 | 1 |
+| 102 | 1 |
+| 103 | 2 |
+
+What will the following query return?
+
+```sql
+SELECT c.customer_id,
+       COUNT(o.order_id) AS order_count
+FROM customers AS c
+LEFT JOIN orders AS o
+  ON c.customer_id = o.customer_id
+GROUP BY c.customer_id
+ORDER BY c.customer_id;
+```
+
+A.
+
+| customer_id | order_count |
+|---:|---:|
+| 1 | 2 |
+| 2 | 1 |
+
+B.(X)
+
+| customer_id | order_count |
+|---:|---:|
+| 1 | 2 |
+| 2 | 1 |
+| 3 | 0 |
+
+C.
+
+| customer_id | order_count |
+|---:|---:|
+| 1 | 2 |
+| 2 | 1 |
+| 3 | 1 |
+
+D.
+
+| customer_id | order_count |
+|---:|---:|
+| 1 | 1 |
+| 2 | 1 |
+| 3 | 0 |
+
+---
+
+### Question 5
+
+Which PostgreSQL expression converts an `order_date` value to the beginning of its calendar month?
+
+A. `EXTRACT(MONTH FROM order_date)`  
+B. `DATE_PART('month', order_date)`  
+C. `DATE_TRUNC('month', order_date)`(X)
+D. `CAST(order_date AS month)`  
+
+---
+
+### Question 6
+
+The `email` column may contain either `NULL` or an empty string when an email address is missing.
+
+Which condition identifies both cases, including strings containing only spaces?
+
+A.
+
+```sql
+email = NULL OR email = ''
+```
+
+B.
+
+```sql
+email IS NULL AND TRIM(email) = ''
+```
+
+C.(X)
+
+```sql
+email IS NULL OR TRIM(email) = ''
+```
+
+D.
+
+```sql
+email IS NOT DISTINCT FROM ''
+```
+
+---
+
+### Question 7
+
+Complete the query so that orders are classified into three value bands.
+
+```sql
+SELECT order_id,
+       CASE
+         WHEN total_amount >= 500 THEN 'High'
+         WHEN total_amount >= 100 THEN 'Medium'
+         ELSE 'Low'
+       END AS value_band
+FROM orders;
+```
+
+A. `THEN`  
+B. `WHEN`(X)
+C. `AND`  
+D. `WHERE`  
+
+---
+
+### Question 8
+
+A dataset contains the following delivery times in minutes:
+
+```text
+20, 22, 23, 24, 25, 27, 180
+```
+
+Which measure of center is least affected by the value `180`?
+
+A. Mean(X)
+B. Median  
+C. Variance  
+D. Standard deviation  
+
+---
+
+### Question 9
+
+Consider the query:
+
+```sql
+SELECT product_name,
+       price
+FROM products
+WHERE price > (
+    SELECT AVG(price)
+    FROM products
+);
+```
+
+What does the query return?
+
+A. The most expensive product only  
+B. Products whose prices are above the overall average product price(X)
+C. Products whose prices are above the average price in their category  
+D. Products whose prices differ from the average product price  
+
+---
+
+### Question 10
+
+Each product belongs to one category. A category may contain many products.
+
+What is the relationship between `categories` and `products`?
+
+A. One-to-one  
+B. One-to-many(X)
+C. Many-to-many  
+D. Self-referencing  
+
+---
+
+### Question 11
+
+What is returned by the following PostgreSQL expression?
+
+```sql
+INITCAP(TRIM('  nEw yoRK  '))
+```
+
+A. `'NEW YORK'`  
+B. `'new york'`  
+C. `'New York'`(X)  
+D. `'  New York  '`  
+
+---
+
+### Question 12
+
+Two queries return customer IDs. Some IDs occur in both result sets.
+
+Which operator combines the result sets while preserving every occurrence, including duplicates?
+
+A. `UNION`  
+B. `UNION ALL`(X) 
+C. `INTERSECT`  
+D. `EXCEPT`  
+
+---
+
+### Question 13
+
+What does the following query calculate?
+
+```sql
+SELECT COUNT(DISTINCT customer_id)
+FROM orders
+WHERE order_date >= DATE '2026-01-01';
+```
+
+A. The number of orders placed since January 1, 2026  
+B. The number of customers in the database  
+C. The number of different customers who placed at least one order since January 1, 2026 (X)
+D. The number of customers who placed exactly one order since January 1, 2026  
+
+---
+
+### Question 14
+
+Complete the query to return customers who have never placed an order.
+
+```sql
+SELECT c.customer_id,
+       c.first_name,
+       c.last_name
+FROM customers AS c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders AS o
+    WHERE o.customer_id IS NULL
+);
+```
+
+A. `o.customer_id IS NULL`(X)
+B. `o.customer_id = c.customer_id`  
+C. `o.order_id = c.customer_id`  
+D. `c.customer_id NOT IN o.customer_id`  
+
+---
+
+### Question 15
+
+A variable is measured in euros.
+
+Which measure of spread is expressed in euros rather than squared euros?
+
+A. Variance  
+B. Standard deviation  (X)
+C. Squared deviation  
+D. Covariance  
+
+### Question 16
+
+The `payments` table contains:
+
+* `payment_id`
+* `customer_id`
+* `payment_date`
+* `amount`
+
+Complete the query to calculate the total amount paid by each customer during 2025.
+
+```sql
+SELECT customer_id,
+       SUM(amount) AS total_paid
+FROM payments
+WHERE payment_date >= DATE '2025-01-01'
+  AND payment_date < DATE '2026-01-01'
+GROUP BY customer_id;
+```
+
+A. `<=`
+B. `<`(X)
+C. `BETWEEN`
+D. `!=`
+
+---
+
+### Question 17
+
+Consider the following query:
+
+```sql
+SELECT category,
+       AVG(price) AS avg_price
+FROM products
+WHERE active = TRUE
+GROUP BY category
+ORDER BY avg_price DESC
+LIMIT 3;
+```
+
+What does the query return?
+
+A. The three most expensive active products
+B. The three categories containing the most active products
+C. The three categories with the highest average price among active products (X)
+D. All active products from the three most expensive categories
+
+---
+
+### Question 18
+
+The `employees` table contains a `department_id` column. Some employees have not yet been assigned to a department.
+
+Which query returns only employees without a department?
+
+A.
+
+```sql
+SELECT *
+FROM employees
+WHERE department_id = NULL;
+```
+
+B.(X)
+
+```sql
+SELECT *
+FROM employees
+WHERE department_id IS NULL;
+```
+
+C.
+
+```sql
+SELECT *
+FROM employees
+WHERE department_id = '';
+```
+
+D.
+
+```sql
+SELECT *
+FROM employees
+WHERE department_id NOT EXISTS;
+```
+
+---
+
+### Question 19
+
+The following tables are used:
+
+```text
+authors
+-------
+author_id
+author_name
+
+books
+-----
+book_id
+title
+
+book_authors
+------------
+book_id
+author_id
+```
+
+Why is the `book_authors` table needed?
+
+A. Authors and books have a one-to-one relationship
+B. Each book must have exactly one author
+C. Authors and books have a many-to-many relationship (X)
+D. The `books` table does not require a primary key
+
+---
+
+### Question 20
+
+Complete the query to return the number of days between `shipped_date` and `order_date`.
+
+```sql
+SELECT order_id,
+       AGE(order_date, shipped_date) AS delivery_days
+FROM orders
+WHERE shipped_date IS NOT NULL;
+```
+
+A. `shipped_date - order_date`
+B. `DATE_TRUNC('day', shipped_date, order_date)`
+C. `AGE(order_date, shipped_date)`(X)
+D. `EXTRACT(DAY FROM order_date)`
+
+---
+
+### Question 21
+
+The `products` table contains the following rows:
+
+| product_id | category | price |
+| ---------: | -------- | ----: |
+|          1 | A        |    20 |
+|          2 | A        |    30 |
+|          3 | B        |    40 |
+|          4 | B        |  NULL |
+
+What is returned by this query?
+
+```sql
+SELECT category,
+       COUNT(price) AS price_count
+FROM products
+GROUP BY category
+ORDER BY category;
+```
+
+A.
+
+| category | price_count |
+| -------- | ----------: |
+| A        |           2 |
+| B        |           2 |
+
+B.(X)
+
+| category | price_count |
+| -------- | ----------: |
+| A        |           2 |
+| B        |           1 |
+
+C.
+
+| category | price_count |
+| -------- | ----------: |
+| A        |           1 |
+| B        |           1 |
+
+D.
+
+| category | price_count |
+| -------- | ----------: |
+| A        |          50 |
+| B        |          40 |
+
+---
+
+### Question 22
+
+A table contains the following constraint:
+
+```sql
+quantity INTEGER CHECK (quantity >= 0)
+```
+
+What does this constraint do?
+
+A. It automatically replaces negative quantities with zero
+B. It prevents rows with a negative quantity from being accepted (X)
+C. It requires every quantity to be unique
+D. It prevents the quantity from being `NULL`
+
+---
+
+### Question 23
+
+Complete the query to replace missing discount values with zero.
+
+```sql
+SELECT order_id,
+       COALESCE(discount, 0) AS discount
+FROM orders;
+```
+
+A. `NULLIF(discount, 0)`
+B. `COALESCE(discount, 0)`(X)
+C. `CAST(discount AS 0)`
+D. `TRIM(discount, 0)`
+
+---
+
+### Question 24
+
+Consider the following query:
+
+```sql
+SELECT region,
+       COUNT(*) AS order_count,
+       SUM(total_amount) AS revenue
+FROM orders
+GROUP BY region
+HAVING SUM(total_amount) > 10000;
+```
+
+Which statement is correct?
+
+A. Rows with `total_amount <= 10000` are removed before grouping
+B. Regions with total revenue greater than 10,000 are returned (X)
+C. Only individual orders worth more than 10,000 are returned
+D. The query returns regions containing more than 10,000 orders
+
+---
+
+### Question 25
+
+The `customer_code` column contains values such as:
+
+```text
+FR-00125
+DE-00842
+ES-00491
+```
+
+Which PostgreSQL expression returns the two-letter country code?
+
+A. `LEFT(customer_code, 2)`(X)
+B. `RIGHT(customer_code, 2)`
+C. `LENGTH(customer_code, 2)`
+D. `TRIM(customer_code FROM 2)`
+
+---
+
+### Question 26
+
+A dataset contains a numerical variable with a standard deviation of zero.
+
+What must be true?
+
+A. The variable contains only `NULL` values
+B. Every non-missing value is identical
+C. The mean of the variable is zero (X)
+D. The variable contains negative values
+
+---
+
+### Question 27
+
+The `orders` table contains multiple orders for each customer.
+
+Which query returns the date of each customer’s most recent order?
+
+A.
+
+```sql
+SELECT customer_id,
+       MIN(order_date)
+FROM orders
+GROUP BY customer_id;
+```
+
+B.(X)
+
+```sql
+SELECT customer_id,
+       MAX(order_date)
+FROM orders
+GROUP BY customer_id;
+```
+
+C.
+
+```sql
+SELECT customer_id,
+       order_date
+FROM orders
+ORDER BY order_date;
+```
+
+D.
+
+```sql
+SELECT DISTINCT customer_id,
+       order_date
+FROM orders;
+```
+
+---
+
+### Question 28
+
+Consider the following query:
+
+```sql
+SELECT p.product_name
+FROM products AS p
+INNER JOIN order_items AS oi
+  ON p.product_id = oi.product_id;
+```
+
+A product appears in ten different order-item rows.
+
+How many times can that product appear in the result?
+
+A. Once
+B. Twice
+C. Ten times (X)
+D. It cannot appear because `INNER JOIN` removes duplicates
+
+---
+
+### Question 29
+
+Complete the query to return orders whose status is neither `'cancelled'` nor `'returned'`.
+
+```sql
+SELECT *
+FROM orders
+WHERE status NOT IN('cancelled', 'returned');
+```
+
+A. `NOT LIKE`
+B. `NOT IN`(X)
+C. `IS NOT`
+D. `EXCEPT`
+
+---
+
+### Question 30
+
+A column named `birth_year` is stored as text. It contains valid four-digit years such as `'1987'` and `'2001'`.
+
+Which expression converts the values to integers in PostgreSQL?
+
+A. `birth_year::INTEGER` (X)
+B. `INTEGER TO birth_year`
+C. `CONVERT(birth_year, INTEGER)`
+D. `PARSE_INTEGER(birth_year)`
+
+### Question 31
+
+The `sales` table contains:
+
+* `sale_id`
+* `sale_date`
+* `region`
+* `amount`
+
+Complete the query to calculate monthly revenue by region.
+
+```sql
+SELECT region,
+       DATE_TRUNC('month', sale_date) AS sales_month,
+       SUM(amount) AS revenue
+FROM sales
+GROUP BY region, DATE_TRUNC('month', sale_date)
+ORDER BY region, sales_month;
+```
+
+A. `sale_id`
+B. `sale_date`
+C. `DATE_TRUNC('month', sale_date)`(X)
+D. `SUM(amount)`
+
+---
+
+### Question 32
+
+Consider the following query:
+
+```sql
+SELECT customer_id
+FROM orders
+GROUP BY customer_id
+HAVING COUNT(*) > (
+    SELECT AVG(order_count)
+    FROM (
+        SELECT COUNT(*) AS order_count
+        FROM orders
+        GROUP BY customer_id
+    ) AS customer_orders
+);
+```
+
+What does the query return?
+
+A. Customers whose total spending is above average
+B. Customers whose number of orders is above the average number of orders per customer (X)
+C. Customers whose most recent order is above average
+D. Customers who placed more than one order
+
+---
+
+### Question 33
+
+A database contains the following table:
+
+```text
+employees
+---------
+employee_id
+employee_name
+department_name
+department_location
+```
+
+Each department has one location, and many employees may work in the same department.
+
+Which design is most appropriate?
+
+A. Keep all columns in one table because employee names are unique
+B. Create a `departments` table and store a department identifier in `employees` (X)
+C. Create one employee table for each department
+D. Remove the department information from the database
+
+---
+
+### Question 34
+
+The `transactions` table contains both positive and negative amounts.
+
+Which query returns the absolute value of every transaction amount?
+
+A.
+
+```sql
+SELECT ROUND(amount)
+FROM transactions;
+```
+
+B.
+
+```sql
+SELECT ABS(amount)
+FROM transactions;
+```
+
+C.(X)
+
+```sql
+SELECT SIGN(amount)
+FROM transactions;
+```
+
+D.
+
+```sql
+SELECT SQRT(amount)
+FROM transactions;
+```
+
+---
+
+### Question 35
+
+Complete the query to return the percentage of orders that were completed.
+
+```sql
+SELECT
+    100.0 * SUM(
+        CASE
+            WHEN status = 'completed' THEN 1
+            ELSE 0
+        END
+    ) / COUNT(*) AS completed_percentage
+FROM orders;
+```
+
+A. `COUNT(*)`(X)
+B. `SUM(status)`
+C. `COUNT(status = 'completed')`
+D. `AVG(status)`
+
+---
+
+### Question 36
+
+The `measurements` table contains:
+
+| measurement_id | value |
+| -------------: | ----: |
+|              1 |    10 |
+|              2 |    20 |
+|              3 |  NULL |
+|              4 |    30 |
+
+What is returned by the following query?
+
+```sql
+SELECT AVG(value)
+FROM measurements;
+```
+
+A. `15`
+B. `20`(X)
+C. `25`
+D. `NULL`
+
+---
+
+### Question 37
+
+Consider the following query:
+
+```sql
+SELECT customer_id,
+       SUM(amount) AS total_amount
+FROM payments
+GROUP BY customer_id
+ORDER BY total_amount DESC
+OFFSET 5
+LIMIT 5;
+```
+
+What does the query return?
+
+A. The five customers with the highest total payment amounts
+B. Customers ranked sixth through tenth by total payment amount (X)
+C. The first five payments after skipping five customers
+D. Five randomly selected customers
+
+---
+
+### Question 38
+
+A table must ensure that every row has a unique, non-missing identifier.
+
+Which constraint should be applied to that identifier?
+
+A. `CHECK`
+B. `FOREIGN KEY`
+C. `PRIMARY KEY`(X)
+D. `DEFAULT`
+
+---
+
+### Question 39
+
+Complete the query to find product names containing the word `coffee`, regardless of letter case.
+
+```sql
+SELECT product_name
+FROM products
+WHERE product_name ILIKE '%coffee%';
+```
+
+A. `LIKE`
+B. `ILIKE`
+C. `IN`
+D. `SIMILAR`
+
+---
+
+### Question 40
+
+The `employees` table contains:
+
+| employee_id | manager_id |
+| ----------: | ---------: |
+|           1 |       NULL |
+|           2 |          1 |
+|           3 |          1 |
+|           4 |          2 |
+
+What type of relationship does `manager_id` represent?
+
+A. A relationship between two unrelated tables
+B. A many-to-many relationship (X)
+C. A self-referencing relationship
+D. A one-to-one relationship between databases
+
+---
+
+### Question 41
+
+Consider the following query:
+
+```sql
+SELECT department_id,
+       COUNT(*) AS employee_count
+FROM employees
+WHERE salary >= 40000
+GROUP BY department_id
+HAVING COUNT(*) >= 3;
+```
+
+Which employees contribute to `employee_count`?
+
+A. All employees in departments with at least three employees
+B. Only employees earning at least 40,000 (X)
+C. Only the three highest-paid employees in each department
+D. Employees earning less than 40,000 in large departments
+
+---
+
+### Question 42
+
+A dataset contains two numerical variables, `advertising_spend` and `sales`. Their correlation is close to `1`.
+
+Which interpretation is most appropriate?
+
+A. Higher advertising spending tends to be associated with higher sales (X)
+B. Higher advertising spending necessarily causes higher sales
+C. Advertising spending and sales have no relationship
+D. Higher advertising spending tends to be associated with lower sales
+
+---
+
+### Question 43
+
+Complete the query to return the first non-null phone number available for each customer.
+
+```sql
+SELECT customer_id,
+       COALESCE(mobile_phone, home_phone) AS contact_phone
+FROM customers;
+```
+
+A. `NULLIF(home_phone, mobile_phone)`
+B. `COALESCE(mobile_phone, home_phone)`(X)
+C. `CONCAT(mobile_phone, home_phone)`
+D. `CAST(mobile_phone AS home_phone)`
+
+---
+
+### Question 44
+
+The following query is intended to return categories that have no products:
+
+```sql
+SELECT c.category_id
+FROM categories AS c
+LEFT JOIN products AS p
+  ON c.category_id = p.category_id
+WHERE p.product_id IS NULL;
+```
+
+Why does this query work?
+
+A. The `LEFT JOIN` removes categories that have products
+B. Unmatched categories are preserved, with `NULL` values for columns from `products`(X)
+C. The `WHERE` clause converts the join into a cross join
+D. A `NULL` product identifier means the product has been deleted
+
+---
+
+### Question 45
+
+A company wants to compare the variability of delivery times across two regions. Delivery times are measured in the same unit for both regions.
+
+Which statistic is most directly appropriate for comparing their spread?
+
+A. Mean
+B. Median
+C. Standard deviation (X)
+D. Correlation
+

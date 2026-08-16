@@ -1,0 +1,1464 @@
+# Feuille d’examen — Mock SQL Associate V1
+
+Ceci est ma feuille d’examen pour notre test maison.
+
+J’ai choisi le format `.txt` afin de pouvoir copier les 45 questions, compléter directement mes réponses, puis transmettre le fichier une fois l’examen terminé.
+
+**Temps de référence : 60 minutes**
+**Durée réellement utilisée : 60 minutes**
+
+## Instructions
+
+* Répondre aux 45 questions.
+* Pour chaque question, indiquer uniquement la lettre correspondant à la réponse choisie.
+* Répondre sans utiliser de cours, de moteur de recherche, d’intelligence artificielle ni d’aide extérieure.
+* En cas d’hésitation, choisir tout de même une réponse.
+* Ne pas modifier les questions ni les choix proposés.
+* Indiquer honnêtement la durée totale réellement utilisée.
+* Il est permis de dépasser les 60 minutes afin de terminer l’examen.
+* Tout dépassement du temps de référence sera toutefois pris en compte lors de la correction et entraînera une pénalisation du score, comme dans les conditions d’un examen chronométré.
+* Une fois l’examen terminé, enregistrer le fichier et le transmettre avec toutes les réponses.
+
+### Question 1
+
+The `customers` table contains one row per customer. The `orders` table contains zero or more orders per customer.
+
+A report must contain **every customer**, including customers who have never placed an order, together with their orders when available.
+
+Which query provides the appropriate starting structure?
+
+A.
+
+```sql
+FROM customers AS c
+INNER JOIN orders AS o
+  ON c.customer_id = o.customer_id
+```
+
+B.(X)
+
+```sql
+FROM customers AS c
+LEFT JOIN orders AS o
+  ON c.customer_id = o.customer_id
+```
+
+C.
+
+```sql
+FROM customers AS c
+FULL JOIN orders AS o
+  ON c.customer_id = o.customer_id
+```
+
+D.
+
+```sql
+FROM orders AS o
+LEFT JOIN customers AS c
+  ON o.customer_id = c.customer_id
+```
+
+---
+
+### Question 2
+
+A table contains:
+
+```text
+employees
+---------
+employee_id
+employee_name
+department_id
+department_name
+department_location
+```
+
+A department can contain many employees, and each department has exactly one location.
+
+Which problem is most directly caused by this design?
+
+A. An employee cannot belong to a department.
+
+B. Department information may need to be updated in multiple rows.(X)
+
+C. `employee_id` cannot be used as a primary key.
+
+D. Employees from different departments cannot have the same name.
+
+---
+
+### Question 3
+
+Consider the query:
+
+```sql
+SELECT customer_id,
+       COUNT(*) AS order_count
+FROM orders
+WHERE status <> 'cancelled'
+GROUP BY customer_id
+HAVING COUNT(*) >= 3;
+```
+
+Which customers are returned?
+
+A. Customers with at least three orders in total, provided none of their orders is cancelled.
+
+B. Customers with exactly three non-cancelled orders.
+
+C. Customers with at least three non-cancelled orders(X).
+
+D. Customers with at least three orders, including cancelled orders in `order_count`.
+
+---
+
+### Question 4
+
+The following tables contain:
+
+**`products`**
+
+| product_id | product_name |
+| ---------: | ------------ |
+|          1 | Keyboard     |
+|          2 | Mouse        |
+|          3 | Monitor      |
+
+**`order_items`**
+
+| order_id | product_id |
+| -------: | ---------: |
+|      100 |          1 |
+|      101 |          1 |
+|      102 |          2 |
+
+What is returned by this query?
+
+```sql
+SELECT p.product_id,
+       COUNT(*) AS item_count
+FROM products AS p
+LEFT JOIN order_items AS oi
+  ON p.product_id = oi.product_id
+GROUP BY p.product_id
+ORDER BY p.product_id;
+```
+
+A.
+
+| product_id | item_count |
+| ---------: | ---------: |
+|          1 |          2 |
+|          2 |          1 |
+
+B.(X)
+
+| product_id | item_count |
+| ---------: | ---------: |
+|          1 |          2 |
+|          2 |          1 |
+|          3 |          0 |
+
+C.
+
+| product_id | item_count |
+| ---------: | ---------: |
+|          1 |          2 |
+|          2 |          1 |
+|          3 |          1 |
+
+D.
+
+| product_id | item_count |
+| ---------: | ---------: |
+|          1 |          1 |
+|          2 |          1 |
+|          3 |          1 |
+
+---
+
+### Question 5
+
+A database contains:
+
+```text
+students
+--------
+student_id
+student_name
+
+courses
+-------
+course_id
+course_name
+
+enrollments
+-----------
+student_id
+course_id
+enrollment_date
+```
+
+A student may enroll in many courses, and a course may contain many students.
+
+Which statement about `enrollments` is most appropriate?
+
+A. It resolves a many-to-many relationship between students and courses.(X)
+
+B. It should be removed and `course_id` stored directly in `students`.
+
+C. It represents a one-to-one relationship.
+
+D. It is unnecessary because the relationship can be derived from the two primary keys.
+
+---
+
+### Question 6
+
+The `orders` table contains a nullable `discount` column.
+
+Consider:
+
+```sql
+SELECT COUNT(*) AS all_orders,
+       COUNT(discount) AS orders_with_discount
+FROM orders;
+```
+
+The table contains 500 rows, and `discount` is `NULL` in 125 rows.
+
+What does the query return?
+
+A. `all_orders = 375`, `orders_with_discount = 375`
+
+B. `all_orders = 500`, `orders_with_discount = 500`
+
+C. `all_orders = 500`, `orders_with_discount = 375`(X)
+
+D. `all_orders = 375`, `orders_with_discount = 500`
+
+---
+
+### Question 7
+
+A company has the following tables:
+
+```text
+employees
+---------
+employee_id
+employee_name
+department_id
+
+departments
+-----------
+department_id
+department_name
+```
+
+The company wants to prevent an employee from being assigned to a `department_id` that does not exist in `departments`.
+
+Which database mechanism is most appropriate?
+
+A. A `UNIQUE` constraint on `employees.department_id`
+
+B. A foreign key from `employees.department_id` to `departments.department_id`(X)
+
+C. A primary key on `employees.department_id`
+
+D. A `NOT NULL` constraint on `departments.department_id`
+
+---
+
+### Question 8
+
+Consider:
+
+```sql
+SELECT category,
+       AVG(price) AS avg_price
+FROM products
+WHERE price IS NOT NULL
+GROUP BY category
+HAVING AVG(price) >= 50;
+```
+
+Which statement is correct?
+
+A. Categories are returned when they contain at least one product priced at 50 or more.
+
+B. Products priced below 50 are removed before the average is calculated.
+
+C. Categories whose average non-missing product price is at least 50 are returned.(X)
+
+D. Categories containing any `NULL` price are excluded entirely.
+
+---
+
+### Question 9
+
+The following tables contain customer information from two systems.
+
+**`web_customers`**
+
+| customer_id |
+| ----------: |
+|           1 |
+|           2 |
+|           3 |
+
+**`store_customers`**
+
+| customer_id |
+| ----------: |
+|           2 |
+|           3 |
+|           4 |
+
+A report must preserve **every row from both systems**, matching customers with the same `customer_id` where possible.
+
+Which join is most appropriate?
+
+A. `INNER JOIN`
+
+B. `LEFT JOIN`
+
+C. `CROSS JOIN`
+
+D. `FULL OUTER JOIN` (X)
+
+---
+
+### Question 10
+
+A table contains:
+
+```text
+orders
+------
+order_id
+customer_id
+customer_email
+order_date
+```
+
+Each customer has one current email address, and customers may place many orders.
+
+Which dependency suggests that `customer_email` should be stored in a separate customer table?
+
+A. `order_id → order_date`
+
+B. `customer_id → customer_email`(X)
+
+C. `customer_email → order_id`
+
+D. `order_date → customer_id`
+
+---
+
+### Question 11
+
+Consider the query:
+
+```sql
+SELECT c.customer_id
+FROM customers AS c
+LEFT JOIN orders AS o
+  ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+```
+
+What does it return?
+
+A. Customers whose orders contain a `NULL` customer ID.
+
+B. Customers who have at least one order with a missing `order_id`.
+
+C. Customers for whom no matching order exists(X).
+
+D. All customers, because a `LEFT JOIN` always preserves every left-side row after filtering.
+
+---
+
+### Question 12
+
+The `sales` table contains:
+
+```text
+sale_date     DATE
+amount        NUMERIC
+```
+
+Complete the query to calculate revenue for each calendar year.
+
+```sql
+SELECT EXTRACT(YEAR FROM sale_date) AS sales_year,
+       SUM(amount) AS revenue
+FROM sales
+GROUP BY EXTRACT(YEAR FROM sale_date)
+ORDER BY sales_year;
+```
+
+A. `amount`
+
+B. `EXTRACT(YEAR FROM sale_date)`(X)
+
+C. `sale_date`
+
+D. `SUM(amount)`
+
+---
+
+### Question 13
+
+A table currently uses this structure:
+
+```text
+projects
+--------
+project_id
+project_name
+employee_1
+employee_2
+employee_3
+```
+
+A project may have any number of employees, and an employee may work on multiple projects.
+
+Which redesign is most appropriate?
+
+A. Add additional columns such as `employee_4`, `employee_5`, and so on when required.
+
+B. Store all employee IDs in one comma-separated text column.
+
+C. Create an associative table containing `project_id` and `employee_id`.(X)
+
+D. Add `project_id` to `employees` and allow only one project per employee.
+
+---
+
+### Question 14
+
+Consider:
+
+```sql
+SELECT customer_id,
+       SUM(amount) AS total_amount
+FROM payments
+GROUP BY customer_id
+HAVING SUM(amount) > (
+    SELECT AVG(customer_total)
+    FROM (
+        SELECT SUM(amount) AS customer_total
+        FROM payments
+        GROUP BY customer_id
+    ) AS totals
+);
+```
+
+What does the query return?
+
+A. Customers whose individual payments are above the average payment amount.
+
+B. Customers whose total payments are greater than the average total payments per customer.(X)
+
+C. Customers who have made more payments than the average customer.
+
+D. Customers whose average payment is greater than the total payments of all customers.
+
+---
+
+### Question 15
+
+The `employees` table contains:
+
+| employee_id | department_id | salary |
+| ----------: | ------------: | -----: |
+|           1 |            10 |  42000 |
+|           2 |            10 |  61000 |
+|           3 |            10 |  67000 |
+|           4 |            20 |  55000 |
+|           5 |            20 |  58000 |
+|           6 |            20 |  30000 |
+
+Consider:
+
+```sql
+SELECT department_id,
+       COUNT(*) AS employee_count
+FROM employees
+WHERE salary >= 50000
+GROUP BY department_id
+HAVING COUNT(*) >= 2
+ORDER BY department_id;
+```
+
+What is returned?
+
+A.(X)
+
+| department_id | employee_count |
+| ------------: | -------------: |
+|            10 |              3 |
+|            20 |              3 |
+
+B.
+
+| department_id | employee_count |
+| ------------: | -------------: |
+|            10 |              2 |
+|            20 |              2 |
+
+C.
+
+| department_id | employee_count |
+| ------------: | -------------: |
+|            10 |              2 |
+
+D.
+
+| department_id | employee_count |
+| ------------: | -------------: |
+|            20 |              2 |
+
+---
+
+### Question 16
+
+The `orders` table contains:
+
+| order_id | customer_id | status    |
+| -------: | ----------: | --------- |
+|        1 |          10 | completed |
+|        2 |          10 | cancelled |
+|        3 |          20 | completed |
+|        4 |          20 | completed |
+|        5 |          30 | cancelled |
+
+Consider:
+
+```sql
+SELECT customer_id,
+       COUNT(*) AS completed_orders
+FROM orders
+WHERE status = 'completed'
+GROUP BY customer_id
+HAVING COUNT(*) >= 2;
+```
+
+What is returned?
+
+A.(X)
+
+| customer_id | completed_orders |
+| ----------: | ---------------: |
+|          10 |                2 |
+|          20 |                2 |
+
+B.
+
+| customer_id | completed_orders |
+| ----------: | ---------------: |
+|          20 |                2 |
+
+C.
+
+| customer_id | completed_orders |
+| ----------: | ---------------: |
+|          10 |                1 |
+|          20 |                2 |
+
+D. No rows
+
+---
+
+### Question 17
+
+A database contains:
+
+```text
+customers
+---------
+customer_id
+customer_name
+
+addresses
+---------
+address_id
+customer_id
+address_type
+address
+```
+
+A customer may have several addresses.
+
+The database must ensure that every address belongs to an existing customer.
+
+Which constraint is required?
+
+A. `addresses.address_id` must reference `customers.customer_id`.
+
+B. `customers.customer_id` must reference `addresses.customer_id`.
+
+C. `addresses.customer_id` must reference `customers.customer_id`.(X)
+
+D. `addresses.customer_id` must be a primary key.
+
+---
+
+### Question 18
+
+Consider:
+
+```sql
+SELECT product_id,
+       product_name
+FROM products
+WHERE product_id NOT IN (
+    SELECT product_id
+    FROM order_items
+);
+```
+
+Assume `order_items.product_id` contains at least one `NULL`.
+
+Which statement best describes the potential problem?
+
+A. `NOT IN` may return no rows because comparisons involving the `NULL` can evaluate to unknown.
+
+B. `NOT IN` automatically ignores `NULL`, so the query is unaffected.(X)
+
+C. PostgreSQL raises a syntax error whenever `NOT IN` is used with a nullable column.
+
+D. Products with `NULL` prices are removed from the result.
+
+---
+
+### Question 19
+
+A database stores:
+
+```text
+orders
+------
+order_id
+customer_id
+customer_name
+customer_city
+```
+
+A customer may place many orders. A customer has one current name and one current city.
+
+Which decomposition best reduces redundancy?
+
+A.(X)
+
+```text
+orders(order_id, customer_id)
+customers(customer_id, customer_name, customer_city)
+```
+
+B.
+
+```text
+orders(order_id, customer_name)
+cities(customer_city)
+```
+
+C.
+
+```text
+orders(order_id, customer_id, customer_name)
+cities(customer_id, customer_city)
+```
+
+D. Keep the existing table because duplicated customer information improves query performance.
+
+---
+
+### Question 20
+
+The `payments` table contains:
+
+| payment_id | amount |
+| ---------: | -----: |
+|          1 |     40 |
+|          2 |   NULL |
+|          3 |     60 |
+|          4 |    100 |
+
+What is returned by:
+
+```sql
+SELECT SUM(amount) / COUNT(amount)
+FROM payments;
+```
+
+A. `50`
+
+B. `66.67` approximately (X)
+
+C. `200`
+
+D. `NULL`
+
+---
+
+### Question 21
+
+A table contains:
+
+```text
+movies
+------
+movie_id
+title
+genre_id
+
+genres
+------
+genre_id
+genre_name
+```
+
+A report must contain **every genre and the number of movies belonging to it**, including genres with zero movies.
+
+Which expression should be counted after a `LEFT JOIN` from `genres` to `movies`?
+
+A. `COUNT(*)` (X)
+
+B. `COUNT(genres.genre_id)`
+
+C. `COUNT(movies.movie_id)`
+
+D. `COUNT(DISTINCT genres.genre_id)`
+
+---
+
+### Question 22
+
+Consider:
+
+```sql
+SELECT department_id,
+       AVG(salary) AS avg_salary
+FROM employees
+GROUP BY department_id
+HAVING AVG(salary) > 50000
+   AND COUNT(*) >= 5;
+```
+
+Which departments are returned?
+
+A. Departments containing at least five employees, where every employee earns more than 50,000.
+
+B. Departments containing more than five employees and a total salary greater than 50,000.
+
+C. Departments containing at least five employees whose average salary is greater than 50,000 (X).
+
+D. Departments whose average salary is at least 50,000, regardless of employee count.
+
+---
+
+### Question 23
+
+A table must represent countries and their cities.(il ya un problème. tu veuwx 2 table ou une seule)
+
+Requirements:
+
+* every city belongs to exactly one country;
+* one country can contain many cities;
+* deleting duplicate country information is desirable.
+
+Which schema best represents this relationship?
+
+A.
+
+```text
+cities(city_id PK, city_name, country_name) (X)
+```
+
+B.
+
+```text
+countries(country_id PK, country_name)
+cities(city_id PK, city_name, country_id FK)
+```
+
+C.
+
+```text
+countries(country_id PK, city_id FK)
+cities(city_id PK, city_name)
+```
+
+D.
+
+```text
+countries(country_id PK, country_name, city_1, city_2, city_3)
+```
+
+---
+
+### Question 24
+
+Consider:
+
+```sql
+SELECT customer_id,
+       COUNT(*) AS order_count
+FROM orders
+WHERE order_date >= DATE '2026-01-01'
+GROUP BY customer_id
+ORDER BY order_count DESC
+LIMIT 1;
+```
+
+What does this query return?
+
+A. The customer with the largest total order value since January 1, 2026.(X)
+
+B. One customer with the greatest number of orders since January 1, 2026.
+
+C. Every customer tied for the greatest number of orders since January 1, 2026.
+
+D. The most recent customer to place an order.
+
+---
+
+### Question 25
+
+The `employees` table contains:
+
+```text
+employee_id
+employee_name
+manager_id
+```
+
+`manager_id` refers to another employee in the same table.
+
+Which structure is appropriate for retrieving each employee together with their manager's name?
+
+A. A self join of `employees`. (X)
+
+B. A `FULL OUTER JOIN` between `employees` and `managers`.
+
+C. A many-to-many bridge table.
+
+D. A `CROSS JOIN` of `employees` with itself.
+
+---
+
+### Question 26
+
+The `sales` table contains:
+
+| region | amount |
+| ------ | -----: |
+| North  |    100 |
+| North  |   NULL |
+| North  |    200 |
+| South  |   NULL |
+| South  |   NULL |
+
+Consider:
+
+```sql
+SELECT region,
+       COUNT(*) AS row_count,
+       COUNT(amount) AS amount_count,
+       AVG(amount) AS avg_amount
+FROM sales
+GROUP BY region
+ORDER BY region;
+```
+
+Which result is correct?
+
+A.
+
+| region | row_count | amount_count | avg_amount |
+| ------ | --------: | -----------: | ---------: |
+| North  |         3 |            3 |        100 |
+| South  |         2 |            2 |       NULL |
+
+B.
+
+| region | row_count | amount_count | avg_amount |
+| ------ | --------: | -----------: | ---------: |
+| North  |         3 |            2 |        150 |
+| South  |         2 |            0 |       NULL |
+
+C.
+
+| region | row_count | amount_count | avg_amount |
+| ------ | --------: | -----------: | ---------: |
+| North  |         2 |            2 |        150 |
+| South  |         0 |            0 |          0 |
+
+D.(X)
+
+| region | row_count | amount_count | avg_amount |
+| ------ | --------: | -----------: | ---------: |
+| North  |         3 |            2 |        100 |
+| South  |         2 |            0 |          0 |
+
+---
+
+### Question 27
+
+A company stores:
+
+```text
+products
+--------
+product_id
+product_name
+supplier_id
+
+suppliers
+---------
+supplier_id
+supplier_name
+```
+
+The company wants to allow a product to temporarily exist without a supplier, while ensuring that any non-null `supplier_id` refers to a valid supplier.
+
+Which design is most appropriate?
+
+A. Make `products.supplier_id` a nullable foreign key referencing `suppliers.supplier_id`.(X)
+
+B. Make `products.supplier_id` a primary key.
+
+C. Make `products.supplier_id` `NOT NULL` without a foreign key.
+
+D. Store `supplier_name` in `products` instead of `supplier_id`.
+
+---
+
+### Question 28
+
+Consider:
+
+```sql
+SELECT c.customer_id,
+       COUNT(o.order_id) AS order_count
+FROM customers AS c
+LEFT JOIN orders AS o
+  ON c.customer_id = o.customer_id
+WHERE o.status = 'completed'
+GROUP BY c.customer_id;
+```
+
+What important effect does the `WHERE` condition have?
+
+A. Customers without orders are preserved with an `order_count` of zero.
+
+B. Customers without a completed matching order are removed from the result.(X)
+
+C. All orders are counted, but only completed orders affect grouping.
+
+D. The condition has no effect because it appears after a `LEFT JOIN`.
+
+---
+
+### Question 29
+
+A company wants a report containing:
+
+* every product from its current product catalog;
+* every product appearing in an old sales archive;
+* matching product IDs combined into one result row where possible;
+* products appearing in only one source still preserved.
+
+Which join best matches this requirement?
+
+A. `INNER JOIN`(X)
+
+B. `LEFT JOIN`
+
+C. `FULL OUTER JOIN`
+
+D. `CROSS JOIN`
+
+---
+
+### Question 30
+
+Consider:
+
+```sql
+SELECT category_id,
+       SUM(quantity * unit_price) AS revenue
+FROM order_items
+WHERE quantity > 0
+GROUP BY category_id
+HAVING SUM(quantity * unit_price) >= 1000
+ORDER BY revenue DESC;
+```
+
+Which statement is correct?
+
+A. Only individual order items worth at least 1,000 are included.
+
+B. Categories are returned when their revenue from positive-quantity rows is at least 1,000.(X)
+
+C. Categories containing any row with `quantity <= 0` are removed entirely.
+
+D. The `HAVING` clause is evaluated before rows with non-positive quantities are removed.
+
+---
+
+### Question 31
+
+The `orders` table contains:
+
+| order_id | customer_id | order_date | amount |
+| -------: | ----------: | ---------- | -----: |
+|        1 |          10 | 2026-01-10 |    100 |
+|        2 |          10 | 2026-02-05 |    200 |
+|        3 |          20 | 2026-01-20 |    300 |
+|        4 |          20 | 2026-03-01 |    100 |
+
+Consider:
+
+```sql
+SELECT customer_id,
+       SUM(amount) AS total_amount
+FROM orders
+WHERE order_date < DATE '2026-03-01'
+GROUP BY customer_id
+HAVING SUM(amount) >= 300;
+```
+
+What is returned?
+
+A.
+
+| customer_id | total_amount |
+| ----------: | -----------: |
+|          10 |          300 |
+|          20 |          400 |
+
+B.(X)
+
+| customer_id | total_amount |
+| ----------: | -----------: |
+|          10 |          300 |
+|          20 |          300 |
+
+C.
+
+| customer_id | total_amount |
+| ----------: | -----------: |
+|          20 |          300 |
+
+D. No rows
+
+---
+
+### Question 32
+
+A database contains:
+
+```text
+employees
+---------
+employee_id
+employee_name
+department_id
+
+departments
+-----------
+department_id
+department_name
+manager_id
+```
+
+Each employee belongs to one department. Each department has one manager, who is also an employee.
+
+Which statement is most accurate?
+
+A. `employees.department_id` should reference `departments.department_id`, and `departments.manager_id` can reference `employees.employee_id`.(X)
+
+B. `departments.department_id` should reference `employees.employee_id`.
+
+C. `employees.employee_id` and `departments.department_id` must contain identical values.
+
+D. A bridge table is required because every employee-department relationship is many-to-many.
+
+---
+
+### Question 33
+
+Consider:
+
+```sql
+SELECT customer_id,
+       AVG(amount) AS avg_amount
+FROM payments
+GROUP BY customer_id
+HAVING AVG(amount) > (
+    SELECT AVG(amount)
+    FROM payments
+);
+```
+
+What does the query return?
+
+A. Customers whose total payments exceed the total payments of the average customer.
+
+B. Customers whose average payment amount exceeds the overall average payment amount across all payments.(X)
+
+C. Customers whose number of payments exceeds the average number of payments.
+
+D. Customers with at least one payment above the overall average.
+
+---
+
+### Question 34
+
+The `users` table contains a `username` column.
+
+The database must guarantee that:
+
+* no two users have the same username;
+* every user has a username.
+
+Which combination of constraints directly enforces these requirements?
+
+A. `PRIMARY KEY` on another column and `DEFAULT` on `username`
+
+B. `UNIQUE` and `NOT NULL` on `username`(X)
+
+C. `FOREIGN KEY` and `CHECK` on `username`
+
+D. `UNIQUE` alone on `username`
+
+---
+
+### Question 35
+
+Consider:
+
+```sql
+SELECT department_id,
+       COUNT(*) AS employee_count
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) BETWEEN 3 AND 5;
+```
+
+Which departments are returned?
+
+A. Departments with more than 3 but fewer than 5 employees.(X)
+
+B. Departments with at least 3 and at most 5 employees.
+
+C. Departments with exactly 3 or exactly 5 employees only.
+
+D. Departments with fewer than 3 or more than 5 employees.
+
+---
+
+### Question 36
+
+A dataset contains the values:
+
+```text
+10, 10, 10, 10, 90
+```
+
+Which statement is correct?
+
+A. The mean and median are both 10.
+
+B. The median is more strongly affected by 90 than the mean.
+
+C. The mean is greater than the median because of the extreme value(X).
+
+D. Removing 90 would increase both the mean and the standard deviation.
+
+---
+
+### Question 37
+
+A database contains:
+
+```text
+customers
+---------
+customer_id
+customer_name
+
+orders
+------
+order_id
+customer_id
+
+payments
+--------
+payment_id
+order_id
+amount
+```
+
+Each order belongs to one customer, and each payment belongs to one order.
+
+A report needs the total amount paid by each customer.
+
+Which relationship path should be used?
+
+A. Join `customers` directly to `payments` using `customer_id`.
+
+B. Join `customers` to `orders` using `customer_id`, then `orders` to `payments` using `order_id`.(X)
+
+C. Join `customers` to `payments` using `payment_id`, then to `orders`.
+
+D. A `CROSS JOIN` is required because `payments` has no `customer_id`.
+
+---
+
+### Question 38
+
+The `orders` table contains:
+
+```text
+order_id
+order_date
+shipped_date
+```
+
+Both date columns use PostgreSQL's `DATE` type.
+
+Which expression returns the number of days between the order date and shipped date?
+
+A. `shipped_date - order_date`
+
+B. `AGE(shipped_date, order_date)`(X)
+
+C. `EXTRACT(DAY FROM shipped_date) - EXTRACT(DAY FROM order_date)`
+
+D. `DATE_TRUNC('day', shipped_date - order_date)`
+
+---
+
+### Question 39
+
+Consider:
+
+```sql
+SELECT c.customer_id
+FROM customers AS c
+WHERE EXISTS (
+    SELECT 1
+    FROM orders AS o
+    WHERE o.customer_id = c.customer_id
+      AND o.status = 'cancelled'
+);
+```
+
+What does the query return?
+
+A. Customers for whom every order is cancelled.
+
+B. Customers who have at least one cancelled order.(X)
+
+C. Customers who have no cancelled orders.
+
+D. Cancelled orders belonging to existing customers.
+
+---
+
+### Question 40
+
+A database stores:
+
+```text
+employees
+---------
+employee_id
+employee_name
+skill_1
+skill_2
+skill_3
+```
+
+Employees may have any number of skills, and each skill may belong to many employees.
+
+Which redesign is most appropriate?
+
+A. Continue adding `skill_4`, `skill_5`, and additional columns when necessary.
+
+B. Store all skills as one comma-separated string.
+
+C. Create a `skills` table and an associative `employee_skills` table.(X)
+
+D. Create a separate employee table for each skill.
+
+---
+
+### Question 41
+
+The `sales` table contains:
+
+| sale_id | region | amount |
+| ------: | ------ | -----: |
+|       1 | East   |    100 |
+|       2 | East   |   NULL |
+|       3 | West   |    200 |
+|       4 | West   |    300 |
+
+Consider:
+
+```sql
+SELECT region,
+       SUM(amount) AS total_amount,
+       COUNT(amount) AS amount_count
+FROM sales
+GROUP BY region
+HAVING COUNT(amount) = COUNT(*);
+```
+
+Which region or regions are returned?
+
+A. East only
+
+B. West only(X)
+
+C. East and West
+
+D. Neither region
+
+---
+
+### Question 42
+
+A table contains:
+
+```text
+order_status
+------------
+status_id
+status_name
+```
+
+Another table contains:
+
+```text
+orders
+------
+order_id
+status_id
+```
+
+The database should prevent deleting a status while existing orders still reference it.
+
+Which mechanism most directly provides this referential-integrity behavior?
+
+A. A foreign key from `orders.status_id` to `order_status.status_id` with deletion restricted.(X)
+
+B. A `UNIQUE` constraint on `orders.status_id`.
+
+C. A `CHECK` constraint requiring `status_id > 0`.
+
+D. A primary key on `orders.status_id`.
+
+---
+
+### Question 43
+
+Consider:
+
+```sql
+SELECT category_id,
+       COUNT(*) AS product_count
+FROM products
+WHERE active = TRUE
+GROUP BY category_id
+HAVING COUNT(*) < 5;
+```
+
+Which statement is correct?
+
+A. It returns categories containing fewer than five products in total.
+
+B. It returns categories containing at most five active products.
+
+C. It returns categories containing fewer than five active products, considering only categories represented by at least one active product.(X)
+
+D. It returns every category with fewer than five active products, including categories with zero active products even if they do not occur in `products`.
+
+---
+
+### Question 44
+
+A database contains:
+
+**`customers`**
+
+| customer_id |
+| ----------: |
+|           1 |
+|           2 |
+|           3 |
+
+**`orders`**
+
+| order_id | customer_id |
+| -------: | ----------: |
+|      101 |           1 |
+|      102 |           1 |
+|      103 |        NULL |
+
+Consider:
+
+```sql
+SELECT c.customer_id
+FROM customers AS c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders AS o
+    WHERE o.customer_id = c.customer_id
+);
+```
+
+What is returned?
+
+A. Customer `1` only
+
+B. Customers `2` and `3`(X)
+
+C. Customer `3` only
+
+D. No customers, because `orders.customer_id` contains `NULL`
+
+---
+
+### Question 45
+
+A company stores product prices in euros. Two product categories have:
+
+```text
+Category A:
+mean = 50
+standard deviation = 5
+
+Category B:
+mean = 50
+standard deviation = 20
+```
+
+Which conclusion is supported by these statistics?
+
+A. Category B has a higher average price.
+
+B. Category A contains more products.
+
+C. Prices in Category B are more dispersed around their mean.
+
+D. Category B must contain more extreme values than Category A.(X)
+
