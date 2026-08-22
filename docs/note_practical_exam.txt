@@ -1,0 +1,647 @@
+# Méthodologie Practical Exam — SQL Associate
+
+## Principe général
+
+Le Practical n'est pas seulement un test de capacité à écrire une requête SQL qui s'exécute.
+
+Le véritable objectif est :
+
+> **produire exactement le jeu de données demandé : bonnes lignes, bonnes colonnes, bons noms, bonnes valeurs, bons types et bon format.**
+
+Une requête qui s'exécute sans erreur peut être entièrement fausse pour le grader.
+
+Donc pendant l'examen :
+
+> **Comprendre → profiler → transformer → valider → seulement ensuite passer à la suite.**
+
+---
+
+# 1. Lire toutes les Tasks avant d'écrire du SQL
+
+Avant de commencer, lire l'ensemble de l'exercice.
+
+Identifier :
+
+* les tables disponibles ;
+* les relations entre tables ;
+* quelle Task produit éventuellement une donnée réutilisée ensuite ;
+* quelles Tasks exigent au contraire **la table originale** ;
+* les colonnes demandées ;
+* leurs noms exacts ;
+* les conditions métier ;
+* les arrondis/formats demandés.
+
+Exemple important de notre mock :
+
+> `Use the original support table, not the output of task 1.`
+
+Il faut donc respecter explicitement cette distinction.
+
+---
+
+# 2. Transformer l'énoncé en « contrat de sortie »
+
+Pour chaque Task, avant le SQL, déterminer mentalement :
+
+**Quelles lignes ? Quelles colonnes ? Quels noms ? Quels types ? Quelles valeurs autorisées ? Quel format ?**
+
+Pour une Task de nettoyage avec un tableau de description, celui-ci devient le **contrat de sortie**.
+
+Par exemple :
+
+```text
+category
+type logique : nominal
+valeurs autorisées :
+Feedback
+Billing Enquiry
+Bug
+Installation Problem
+Other
+
+missing → Other
+```
+
+Ne pas commencer immédiatement le `CASE`.
+
+---
+
+# 3. TASK DE NETTOYAGE : profiler la source AVANT de nettoyer
+
+C'est probablement l'étape la plus importante.
+
+## A. Observer rapidement les données
+
+```sql
+SELECT *
+FROM support
+LIMIT 20;
+```
+
+Ce n'est **pas une validation**. Ça sert seulement à comprendre visuellement la table.
+
+---
+
+## B. Vérifier les types physiques
+
+```sql
+SELECT
+    PG_TYPEOF(id),
+    PG_TYPEOF(customer_id),
+    PG_TYPEOF(category),
+    PG_TYPEOF(status),
+    PG_TYPEOF(creation_date),
+    PG_TYPEOF(response_time),
+    PG_TYPEOF(resolution_time)
+FROM support
+LIMIT 1;
+```
+
+Important :
+
+`PG_TYPEOF()` indique le **type PostgreSQL**, pas le type logique DataCamp.
+
+Ainsi :
+
+```text
+DataCamp : Continuous
+PostgreSQL : text
+```
+
+est parfaitement possible.
+
+Et c'est justement un **signal d'alerte** : il faudra probablement nettoyer avant de convertir.
+
+---
+
+# 4. Pour chaque variable catégorielle : examiner TOUT le domaine
+
+C'est désormais une règle systématique.
+
+```sql
+SELECT category, COUNT(*)
+FROM support
+GROUP BY category
+ORDER BY category;
+```
+
+Même chose pour `status`, etc.
+
+Pourquoi ?
+
+Parce que ça permet de détecter en quelques secondes :
+
+* `NULL`
+* `-`
+* chaîne vide
+* espaces
+* différences de casse
+* catégories supplémentaires
+* fautes de frappe
+* variantes d'une même catégorie.
+
+C'est exactement ainsi qu'on aurait immédiatement découvert :
+
+```text
+Billing enquiry
+```
+
+et :
+
+```text
+status = '-'
+```
+
+sans parcourir les lignes une par une.
+
+### Règle
+
+Ne jamais nettoyer une variable catégorielle avant d'avoir vu ses valeurs distinctes.
+
+---
+
+# 5. Ne jamais supposer que « missing » = NULL
+
+C'est maintenant confirmé explicitement par DataCamp.
+
+Une donnée manquante peut être :
+
+```text
+NULL
+-
+''
+missing
+N/A
+...
+```
+
+Donc :
+
+```sql
+WHERE status IS NULL
+```
+
+ne suffit absolument pas.
+
+Dans notre mock :
+
+```text
+status = '-'
+```
+
+apparaissait **157 fois**, alors que :
+
+```sql
+COUNT(*) FILTER (WHERE status IS NULL)
+```
+
+retournait zéro.
+
+Il faut donc croiser :
+
+**`IS NULL` + inspection du domaine réel.**
+
+---
+
+# 6. Distinguer trois problèmes
+
+### Valeur manquante
+
+Aucune information réelle :
+
+```text
+NULL
+-
+missing
+```
+
+selon le contexte.
+
+### Valeur mal formatée
+
+L'information existe mais sa représentation est incohérente :
+
+```text
+Billing enquiry
+billing enquiry
+ Billing Enquiry
+```
+
+### Valeur invalide
+
+Une information existe mais ne correspond pas au domaine attendu.
+
+Ces trois situations **ne doivent pas automatiquement recevoir le même traitement**.
+
+---
+
+# 7. Pour les colonnes numériques et dates : contrôler les distributions simples
+
+Faire au minimum :
+
+```sql
+SELECT
+    MIN(creation_date),
+    MAX(creation_date),
+    MIN(response_time),
+    MAX(response_time)
+FROM support;
+```
+
+Comparer au contrat.
+
+Si DataCamp dit :
+
+```text
+creation_date : any date in 2023
+```
+
+on vérifie immédiatement que la plage observée est compatible.
+
+Pour des contraintes plus précises, chercher directement les violations :
+
+```sql
+SELECT *
+FROM support
+WHERE creation_date < DATE '2023-01-01'
+   OR creation_date >= DATE '2024-01-01';
+```
+
+---
+
+# 8. Pour une colonne texte devant devenir numérique : inspecter AVANT CAST
+
+Exemple :
+
+```text
+resolution_time
+"14.53 hours"
+"8.20 hours"
+...
+```
+
+Ne pas écrire immédiatement :
+
+```sql
+CAST(...)
+```
+
+Il faut d'abord comprendre **ce qui est réellement stocké**.
+
+DataCamp le dit explicitement :
+
+> Have I checked the values I had before converting types?
+
+Donc :
+
+**inspecter → nettoyer → convertir**, et non :
+
+**convertir au hasard → gérer les erreurs ensuite.**
+
+---
+
+# 9. Construire ensuite la requête de nettoyage
+
+Seulement après le profilage.
+
+Pour les catégories, utiliser une normalisation raisonnable :
+
+```sql
+LOWER(TRIM(category))
+```
+
+puis retourner explicitement la modalité canonique :
+
+```sql
+CASE
+    WHEN LOWER(TRIM(category)) = 'feedback' THEN 'Feedback'
+    ...
+END
+```
+
+Ça sépare :
+
+**la forme utilisée pour reconnaître la donnée**
+
+de :
+
+**la forme exacte exigée en sortie.**
+
+---
+
+# 10. Après nettoyage : valider le résultat comme un dataset indépendant
+
+C'est essentiel.
+
+Ne jamais considérer :
+
+> « la requête tourne »
+
+comme une validation.
+
+## Vérifier les NULL
+
+```sql
+SELECT
+    COUNT(*) FILTER (WHERE customer_id IS NULL),
+    COUNT(*) FILTER (WHERE category IS NULL),
+    ...
+FROM clean_data;
+```
+
+## Vérifier à nouveau les catégories
+
+```sql
+SELECT category, COUNT(*)
+FROM clean_data
+GROUP BY category
+ORDER BY category;
+```
+
+La liste obtenue doit maintenant correspondre **exactement au contrat**.
+
+## Vérifier les types
+
+```sql
+SELECT
+    PG_TYPEOF(...),
+    ...
+FROM clean_data
+LIMIT 1;
+```
+
+## Vérifier les plages
+
+```sql
+SELECT
+    MIN(...),
+    MAX(...)
+FROM clean_data;
+```
+
+---
+
+# 11. Encore mieux : rechercher les violations plutôt que les bonnes valeurs
+
+C'est une technique extrêmement utile.
+
+Au lieu de regarder 1 000 lignes et de se demander :
+
+> « Est-ce que ça a l'air correct ? »
+
+on demande à SQL :
+
+> **« Trouve-moi une seule ligne qui viole le contrat. »**
+
+Exemple :
+
+```sql
+SELECT *
+FROM clean_data
+WHERE category NOT IN (
+    'Feedback',
+    'Billing Enquiry',
+    'Bug',
+    'Installation Problem',
+    'Other'
+);
+```
+
+Résultat attendu :
+
+```text
+0 rows
+```
+
+Même principe :
+
+```sql
+SELECT *
+FROM clean_data
+WHERE status NOT IN ('Open', 'In Progress', 'Resolved');
+```
+
+et :
+
+```sql
+SELECT *
+FROM clean_data
+WHERE creation_date < DATE '2023-01-01'
+   OR creation_date >= DATE '2024-01-01';
+```
+
+**Zéro violation est beaucoup plus informatif que regarder visuellement 500 lignes.**
+
+---
+
+# 12. Tasks d'agrégation : suivre littéralement l'énoncé
+
+Pour les Tasks plus simples, ne pas sur-ingénierer.
+
+Identifier :
+
+```text
+mesure
+fonction
+groupement
+nom de sortie
+arrondi
+```
+
+Dans notre Task 2 :
+
+```text
+mesure      → response_time
+fonctions   → MIN / MAX
+groupement  → category
+sorties     → category / min_response / max_response
+arrondi     → 2 décimales
+```
+
+Puis vérifier :
+
+* nombre de groupes plausible ;
+* noms exacts ;
+* métriques exactes ;
+* arrondi demandé.
+
+Notre version validée par le grader était :
+
+```sql
+SELECT
+    category,
+    ROUND(MIN(response_time)::NUMERIC, 2) AS min_response,
+    ROUND(MAX(response_time)::NUMERIC, 2) AS max_response
+FROM clean_data
+GROUP BY category;
+```
+
+---
+
+# 13. Tasks de jointure : comprendre le grain AVANT le JOIN
+
+Avant d'écrire :
+
+```sql
+JOIN ...
+```
+
+répondre mentalement à trois questions :
+
+**Quelle population dois-je retourner ?**
+
+**Quelle clé relie les tables ?**
+
+**Est-ce que je veux uniquement les correspondances ou conserver des lignes sans correspondance ?**
+
+Puis choisir :
+
+```text
+INNER JOIN
+LEFT JOIN
+...
+```
+
+Ne pas mettre systématiquement `LEFT JOIN` « pour être sûr ».
+
+Dans notre Task 3, le besoin impliquait les clients ayant un `rating` et un ticket correspondant : `INNER JOIN` convenait.
+
+Et vérifier explicitement si l'énoncé demande :
+
+```text
+original table
+```
+
+ou une table nettoyée produite précédemment.
+
+---
+
+# 14. Conditions métier : traduire avant de coder
+
+DataCamp insiste là-dessus.
+
+Un stakeholder ne dira pas forcément :
+
+```sql
+WHERE ...
+```
+
+Il dira :
+
+> customers who reported Bugs or Installation Problems
+
+Il faut traduire ça en logique SQL.
+
+Attention aux pluriels et à la prose : dans notre mock, **“Bugs” dans la phrase ne signifiait pas que la valeur stockée était `'Bugs'`**.
+
+La valeur réelle/canonique était :
+
+```text
+Bug
+```
+
+Donc pour une condition catégorielle, vérifier le domaine réel avant d'écrire le filtre.
+
+---
+
+# 15. Vérification structurelle finale de CHAQUE Task
+
+Avant de considérer une Task terminée :
+
+**Colonnes**
+
+* Toutes présentes ?
+* Aucune colonne supplémentaire ?
+* Bon ordre si l'énoncé semble l'exiger ?
+
+**Noms**
+
+* Alias exactement demandés ?
+
+**Lignes**
+
+* Population correcte ?
+* Filtrage correct ?
+* Doublons inattendus ?
+
+**Valeurs**
+
+* Missing traités ?
+* Catégories conformes ?
+* Transformations correctes ?
+
+**Types**
+
+* Type physique cohérent avec le résultat demandé ?
+
+**Format**
+
+* Arrondi ?
+* Dates ?
+* chaînes ?
+
+---
+
+# 16. Ne pas modifier plusieurs Tasks simultanément pendant un mock
+
+Notre expérience d'aujourd'hui l'a démontré de manière spectaculaire.
+
+On avait des résultats incompréhensibles parce qu'on modifiait plusieurs choses puis soumettait.
+
+La méthode qui nous a finalement permis de comprendre le grader :
+
+```text
+Task 1 seule → submit → 3/5
+Task 1 + Task 2 → submit → 4/5
+Task 1 + Task 2 + Task 3 → submit → 5/5
+```
+
+C'est ce qui nous a permis d'établir que :
+
+**Task 1 → missing + conversion + categorical cleaning**
+
+**Task 2 → aggregation**
+
+**Task 3 → schema/join**
+
+Sur un mock réinitialisable, c'est une excellente technique de diagnostic.
+
+Sur le vrai examen, évidemment, on ne dépend pas de soumissions intermédiaires si elles ne sont pas disponibles : on remplace ça par nos validations SQL.
+
+---
+
+# 17. Gestion du temps
+
+Je consacrerais **davantage de temps à la Task de nettoyage qu'aux autres**.
+
+Pas parce que son SQL est nécessairement complexe, mais parce qu'elle demande :
+
+**inspection + interprétation + transformation + validation.**
+
+Une Task d'agrégation comme Task 2 peut ensuite prendre quelques minutes.
+
+Donc sur quatre heures, il n'y a aucune raison de se précipiter sur le nettoyage. Une erreur dans la première Task peut en plus contaminer les Tasks qui réutilisent sa sortie.
+
+---
+
+# Checklist compacte pour le jour J
+
+Avant nettoyage :
+
+> **READ → TYPES → NULLS → DISTINCT/COUNT → MIN/MAX → FORMATS**
+
+Après nettoyage :
+
+> **ROWS → COLUMNS → NAMES → TYPES → NULLS → DOMAINS → RANGES → VIOLATIONS**
+
+Pour chaque Task d'analyse :
+
+> **SOURCE → POPULATION → COLUMNS → CONDITIONS → OPERATION → ALIASES → FORMAT**
+
+Avant soumission :
+
+> **Relire l'énoncé comme si je corrigeais la copie de quelqu'un d'autre.**
+
+La règle la plus importante issue à la fois de DataCamp **et de ce mock validé 5/5** est finalement celle-ci :
+
+> **Ne jamais supposer que les données ressemblent à leur description. Observer d'abord les valeurs réellement présentes, construire le nettoyage à partir du contrat demandé, puis chercher explicitement les violations restantes.**
